@@ -1,6 +1,7 @@
 #ifndef __UART_H__
 #define __UART_H__
-#include "common.h"
+#include<avr/io.h>
+#include"../inc/cdl_types.h"
 /*Define register*/
 #define UART_DATA(x) (UDR##x)
 #define UART_CTL_STAT_A(x)  (UCSR##x##A)//RXCn TXCn UDREn FEn DORn UPEn U2Xn MPCMn
@@ -8,15 +9,15 @@
 #define UART_CTL_STAT_C(x)  (UCSR##x##C)//UMSELn UPMn1 UPMn0 USBSn UCSZn1 UCSZn0 UCPOLn
 #define UART_BAUD_H(x)      (UBRR##x##H)
 #define UART_BAUD_L(x)      (UBRR##x##L)
-
+#define DIV_U2X(x)              (x?8:16)
 
 /*line set offset*/
-#define DATA_BIT_H_MASK 1<<2 
-#define DATA_BIT_L_MASK 3<<1
+#define DATA_BIT_H_MASK (1<<2 )
+#define DATA_BIT_L_MASK (3<<1)
 
-#define STOP_BIT_MASK   1<<3
+#define STOP_BIT_MASK   (1<<3)
 
-#define PARITY_MASK     3<<4
+#define PARITY_MASK     (3<<4)
 /*interrupt*/
 /*data len UCSRnB[2] UCSRnC[2:1]*/
 typedef enum{
@@ -42,6 +43,13 @@ typedef enum{
 
 
 struct atmega128_uart{
-
+    int id;
+    u32 baudrate;
+    u16 div;
+    int u2x;
+    int data_bits;
+    int stop_bits;
+    int parity;
 };
+
 #endif

@@ -4,7 +4,7 @@ FLAG-OBJ = -mmcu=atmega128 -Os -c
 VPATH=cdl/objs
 TARGET = test.hex
 PRE-TARGET = test
-objects = cdl/objs/io.o main.o 
+objects = cdl/objs/uart.o main.o 
 
 $(TARGET): cdl $(PRE-TARGET)
 	avr-objcopy -j .text -j .data -O ihex $(PRE-TARGET) $(TARGET)
