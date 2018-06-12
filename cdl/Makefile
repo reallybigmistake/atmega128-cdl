@@ -4,7 +4,7 @@ VPATH=src
 IPATH = inc
 IPATH += include
 # CFLAG = -mmcu=atmega128 -Os -I $(IPATH) -c
-CFLAG = -mmcu=atmega128 -Os -c $(patsubst %, -I%, $(IPATH))
+CFLAG = -mmcu=atmega128 -D F_CPU=16000000 -Os -c $(patsubst %, -I%, $(subst :, ,IPATH))
 
 srcs = io.c
 objects = $(addprefix $(OUTPUT)/, $(srcs:.c=.o))
