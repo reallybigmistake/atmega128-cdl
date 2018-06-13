@@ -10,7 +10,7 @@ int current_console_base;
 int console_switched = 0;
 
 
-void console_init(int uart_id, u32 baudrate)
+void console_init(int uart_id, unsigned long baudrate)
 {
 	memset(p_uart_console, 0, sizeof(struct atmega128_uart));
     p_uart_console->id = uart_id;
@@ -21,7 +21,7 @@ void console_flush(void) {
 	uart_flush(p_uart_console);
 }
 
-u32 console_baud(void) {
+unsigned long console_baud(void) {
 	return p_uart_console->baudrate;
 }
 
@@ -133,7 +133,7 @@ int console_gets(char* buf, int len)
 int console_printf(const char* fmt, ...)
 {
 	va_list args;
-	unsigned long i;
+	int i;
 
 	va_start(args, fmt);
 
@@ -141,7 +141,7 @@ int console_printf(const char* fmt, ...)
 	 * For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
-	i = vscnprintf((char*)console_buf, CONSOLE_BUF_SIZE - 1, fmt, args);
+	i = vsnprintf((char*)console_buf, CONSOLE_BUF_SIZE - 1, fmt, args);
 	va_end(args);
 
 	/* Print the string */
@@ -150,24 +150,24 @@ int console_printf(const char* fmt, ...)
 	return i;
 }
 
-int printf(const char* fmt, ...) {
-	va_list args;
-	unsigned long i;
+// int printf(const char* fmt, ...) {
+// 	va_list args;
+// 	int i;
 
-	va_start(args, fmt);
+// 	va_start(args, fmt);
 
-	/*
-	 * For this to work, printbuffer must be larger than
-	 * anything we ever want to print.
-	 */
-	i = vscnprintf((char*)console_buf, CONSOLE_BUF_SIZE - 1, fmt, args);
-	va_end(args);
+// 	/*
+// 	 * For this to work, printbuffer must be larger than
+// 	 * anything we ever want to print.
+// 	 */
+// 	i = vscnprintf((char*)console_buf, CONSOLE_BUF_SIZE - 1, fmt, args);
+// 	va_end(args);
 
-	/* Print the string */
-	console_buf[i] = 0;
-	console_puts((const char*)console_buf);
-	return i;
-}
+// 	/* Print the string */
+// 	console_buf[i] = 0;
+// 	console_puts((const char*)console_buf);
+// 	return i;
+// }
 
 // int console_check_char(unsigned char check)
 // {

@@ -31,11 +31,11 @@ void uart_init(struct atmega128_uart* dev, u32 baudrate, char parity, int databi
     dev->stop_bits = stopbit;
     switch(parity)
     {
-        case 'e':dev-parity=EVEN_PARITY;
+        case 'e':dev->parity=EVEN_PARITY;
             break;
-        case 'o':dev-parity=ODD_PARITY;
+        case 'o':dev->parity=ODD_PARITY;
             break;
-        default:dev-parity=NO_PARITY;
+        default:dev->parity=NO_PARITY;
     }
     dev->div = uart_calc_div(dev, baudrate);
     //set div

@@ -1,8 +1,11 @@
-#include "test_config.h"
+// #include "test_config.h"
+#include <io.h>
 int main(void){
-    struct atmega128_uart* p_uart0;
-    p_uart->id = 0;
-    uart_init(p_uart0, 38400, NO_PARITY, 8, 1);
+    console_init(0, 38400);
+    unsigned long baud = console_baud();
+    // while(1)
+    // console_putc('c');
+
 
     
     return 0;

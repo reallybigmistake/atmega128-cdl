@@ -10,7 +10,6 @@ CFLAG = -mmcu=atmega128 -D F_CPU=16000000 -Os -c $(patsubst %, -I%, $(subst :, ,
 
 srcs = console.c
 objects = $(addprefix $(OUTPUT)/, $(srcs:.c=.o))
-CFLAG += 
 all:$(OUTPUT) $(objects)
 
 $(objects):$(srcs:.c = .h)
