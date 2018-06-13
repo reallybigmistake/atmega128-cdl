@@ -3,21 +3,25 @@
 #include<avr/io.h>
 #include"../inc/cdl_types.h"
 /*Define register*/
-#define UART_DATA(x) (UDR##x)
-#define UART_CTL_STAT_A(x)  (UCSR##x##A)//RXCn TXCn UDREn FEn DORn UPEn U2Xn MPCMn
-#define UART_CTL_STAT_B(x)  (UCSR##x##B)//RXCIEn TXCIEn UDRIEn RXENn TXENn UCSZn2 RXB8n TXB8n
-#define UART_CTL_STAT_C(x)  (UCSR##x##C)//UMSELn UPMn1 UPMn0 USBSn UCSZn1 UCSZn0 UCPOLn
-#define UART_BAUD_H(x)      (UBRR##x##H)
-#define UART_BAUD_L(x)      (UBRR##x##L)
+
+#define UART_DATA(x) ((x)?0x9c:0x2c)
+#define UART_CTL_STAT_A(x)  ((x)?0x9b:0x2b)//RXCn TXCn UDREn FEn DORn UPEn U2Xn MPCMn
+#define UART_CTL_STAT_B(x)  ((x)?0x9a:0x2a)//RXCIEn TXCIEn UDRIEn RXENn TXENn UCSZn2 RXB8n TXB8n
+#define UART_CTL_STAT_C(x)  ((x)?0x9d:0x95)//UMSELn UPMn1 UPMn0 USBSn UCSZn1 UCSZn0 UCPOLn
+#define UART_BAUD_H(x)      ((x)?0x98:0x90)
+#define UART_BAUD_L(x)      ((x)?0x99:0x29)
 #define DIV_U2X(x)              (x?8:16)
 
 /*line set offset*/
-#define DATA_BIT_H_MASK (1<<2 )
-#define DATA_BIT_L_MASK (3<<1)
+#define DATA_BIT_H_SHIFT 2
+#define DATA_BIT_L_SHIFT 1
+#define STOP_BIT_SHIFT 3
+#define PARITY_SHIFT 4
 
-#define STOP_BIT_MASK   (1<<3)
-
-#define PARITY_MASK     (3<<4)
+#define DATA_BIT_H_MASK (1<<DATA_BIT_H_SHIFT )
+#define DATA_BIT_L_MASK (3<<DATA_BIT_L_SHIFT)
+#define STOP_BIT_MASK   (1<<STOP_BIT_SHIFT)
+#define PARITY_MASK     (3<<PARITY_SHIFT)
 /*interrupt*/
 /*data len UCSRnB[2] UCSRnC[2:1]*/
 typedef enum{

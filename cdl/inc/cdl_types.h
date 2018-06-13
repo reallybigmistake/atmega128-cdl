@@ -5,9 +5,10 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned long u32;
 typedef unsigned long long u64;
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned long ulong;
+
+
+#define read8(a) (*(volatile u8 *)(a))
+#define write8(a, v) (*(volatile u8 *)(a)) = ((u8)v)
 
 #define DEBUG_OUTPUT
 #ifdef 	DEBUG_OUTPUT
