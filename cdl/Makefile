@@ -11,12 +11,17 @@ CFLAG = -mmcu=atmega128 \
 		$(patsubst %, -I%, $(subst :, ,$(IPATH)))
 
 srcs = uart.c
+
 objects = $(addprefix $(OUTPUT)/, $(srcs:.c=.o))
 all:$(OUTPUT) $(objects)
-$(objects):$(srcs:.c = .h)
+
+$(objects):$(OUTPUT)/%.o:%.c
 	$(CC) $(CFLAG) $< -o $@
-.PHONY: $(OUTPUT)
+
+.PHONY: $(OUTPUT) clean
+
 $(OUTPUT):
 	@mkdir -p $(OUTPUT)
+
 clean:
 	@-rm -rf $(OUTPUT)

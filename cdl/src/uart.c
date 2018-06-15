@@ -10,6 +10,19 @@ static inline u8 uart_read_reg(int reg_addr)
 	return read8(reg_addr);
 }
 
+void uart_enable(struct atmega128_uart *dev, int en)
+{
+    int val;
+    if(en){
+        val = uart_read_reg(UART_CTL_STAT_B(dev->id));
+        uart_write_reg(UART_CTL_STAT_B(dev->id), val|UART_ENABLE);
+    }
+    else{
+        val = uart_read_reg(UART_CTL_STAT_B(dev->id));
+        uart_write_reg(UART_CTL_STAT_B(dev->id), val & ~UART_ENABLE);
+    }
+    
+}
 u16 uart_calc_div(struct atmega128_uart* dev, u32 baudrate)
 {
     return (F_CPU + ((DIV_U2X(dev->u2x) * baudrate)/2)/ (DIV_U2X(dev->u2x) * baudrate) -1);
@@ -63,7 +76,7 @@ void uart_flush(struct atmega128_uart* dev)
 
 void uart_putc(struct atmega128_uart* dev, char c)
 {
-    uart_flush(dev);
+    while(!(uart_read_reg(UART_CTL_STAT_A(dev->id))& (1<<TXC0)));
     uart_write_reg(UART_DATA(dev->id), c);
 }
 char uart_getc(struct atmega128_uart* dev)
@@ -87,4 +100,30 @@ int uart_read(struct atmega128_uart* dev, char* buf, int len)
 		buf[i] = uart_getc(dev);
     }
 	return(i);
+}
+
+void uart_enable_rx_interrupt(struct atmega128_uart* dev, int en)
+{
+    int val;
+    if(en){
+        val = uart_read_reg(UART_CTL_STAT_B(dev->id));
+        uart_write_reg(UART_CTL_STAT_B(dev->id), val | 1<<RXCIE0);
+    }
+    else{
+        val = uart_read_reg(UART_CTL_STAT_B(dev->id));
+        uart_write_reg(UART_CTL_STAT_B(dev->id), val & ~(1<<RXCIE0));
+    }
+}
+
+void uart_enable_tx_interrupt(struct atmega128_uart* dev, int en)
+{
+    int val;
+    if(en){
+        val = uart_read_reg(UART_CTL_STAT_B(dev->id));
+        uart_write_reg(UART_CTL_STAT_B(dev->id), val | 1<<TXCIE0);
+    }
+    else{
+        val = uart_read_reg(UART_CTL_STAT_B(dev->id));
+        uart_write_reg(UART_CTL_STAT_B(dev->id), val & ~(1<<TXCIE0));
+    }
 }

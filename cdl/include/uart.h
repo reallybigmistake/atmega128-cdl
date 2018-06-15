@@ -23,6 +23,8 @@
 #define STOP_BIT_MASK   (1<<STOP_BIT_SHIFT)
 #define PARITY_MASK     (3<<PARITY_SHIFT)
 /*interrupt*/
+/*uart enable*/
+#define UART_ENABLE     (1<<RXEN0 | 1<<TXEN)
 /*data len UCSRnB[2] UCSRnC[2:1]*/
 typedef enum{
     DATA_LEN_5BIT = 0,

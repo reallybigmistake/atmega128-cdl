@@ -1,7 +1,7 @@
 #include "uart.h"
 #include "console.h"
 
-#define CONSOLE_BUF_SIZE	128
+#define CONSOLE_BUF_SIZE	512
 unsigned char console_buf[CONSOLE_BUF_SIZE];
 
 struct atmega128_uart uart_console;
@@ -15,6 +15,7 @@ void console_init(int uart_id, unsigned long baudrate)
 	memset(p_uart_console, 0, sizeof(struct atmega128_uart));
     p_uart_console->id = uart_id;
 	uart_init(p_uart_console, 38400, 'n', 8, 1);
+	uart_enable(1);
 }
 
 void console_flush(void) {
@@ -149,35 +150,3 @@ int console_printf(const char* fmt, ...)
 	console_puts((const char*)console_buf);
 	return i;
 }
-
-// int printf(const char* fmt, ...) {
-// 	va_list args;
-// 	int i;
-
-// 	va_start(args, fmt);
-
-// 	/*
-// 	 * For this to work, printbuffer must be larger than
-// 	 * anything we ever want to print.
-// 	 */
-// 	i = vscnprintf((char*)console_buf, CONSOLE_BUF_SIZE - 1, fmt, args);
-// 	va_end(args);
-
-// 	/* Print the string */
-// 	console_buf[i] = 0;
-// 	console_puts((const char*)console_buf);
-// 	return i;
-// }
-
-// int console_check_char(unsigned char check)
-// {
-// 	char cc;
-
-// 	if (console_tstc()) {
-// 		cc = console_getc();
-// 		if (cc == check) {
-// 			return 1;
-// 		}
-// 	}
-// 	return 0;
-// }

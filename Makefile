@@ -1,26 +1,28 @@
 CC=avr-gcc
 FLAG = -mmcu=atmega128 -Os
-FLAG-OBJ = -mmcu=atmega128 -Os -c
+MAP-FLAG = -Wl,-Map,$(TARGET .hex=.map)
 VPATH=cdl/objs
 VPATH += apps/objs
-TARGET = test.hex
-PRE-TARGET = test
+TARGET = main.hex
+PRE-TARGET = main.axf
 objects =  main.o console.o uart.o
 
-$(TARGET): cdl apps $(PRE-TARGET)
-	avr-objcopy -j .text -j .data -O ihex $(PRE-TARGET) $(TARGET)
-$(PRE-TARGET): $(objects)
-	$(CC) $(FLAG) -o $@ $^
-main.o: test_config.h
-	$(CC) $(FLAG-OBJ)  main.c
-.PHONY: clean cdl apps
-cdl:
+$(TARGET): mkcdl mkapps mkhex
+program: $(TARGET)
+	avrdude -p atmega128 -c usbasp -e -U flash:w:$(TARGET)
+
+.PHONY: clean mkcdl mkapps mkhex
+
+mkcdl:
 	make -C cdl
-apps:
+mkapps:
 	make -C apps
+mkhex:
+	make -f mkhex.mk
+
 clean:clean-cdl clean-main clean-apps
 clean-main:
-	-rm $(TARGET) $(PRE-TARGET) main.o 
+	@make -f mkhex.mk clean
 clean-cdl:
 	@make -C cdl clean
 clean-apps:
