@@ -1,7 +1,5 @@
 #include "uart.h"
 #include "console.h"
-
-#define CONSOLE_BUF_SIZE	512
 unsigned char console_buf[CONSOLE_BUF_SIZE];
 
 struct atmega128_uart uart_console;
@@ -12,10 +10,12 @@ int console_switched = 0;
 
 void console_init(int uart_id, unsigned long baudrate)
 {
+	uart_enable(p_uart_console, 0);
 	memset(p_uart_console, 0, sizeof(struct atmega128_uart));
     p_uart_console->id = uart_id;
-	uart_init(p_uart_console, 38400, 'n', 8, 1);
-	uart_enable(1);
+	uart_set_u2x(p_uart_console, 0);
+	uart_init(p_uart_console, baudrate, 'n', 8, 1);
+	uart_enable(p_uart_console, 1);
 }
 
 void console_flush(void) {
@@ -74,7 +74,7 @@ int console_gets(char* buf, int len)
 			 the last.
 			*/
 			if (count) {
-				uart_write(p_uart_console, "\b \b", 3);
+				uart_write(p_uart_console, "\b", 1);
 				count--;
 			}
 			continue;

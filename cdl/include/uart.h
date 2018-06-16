@@ -24,7 +24,7 @@
 #define PARITY_MASK     (3<<PARITY_SHIFT)
 /*interrupt*/
 /*uart enable*/
-#define UART_ENABLE     (1<<RXEN0 | 1<<TXEN)
+#define UART_ENABLE     (1<<RXEN0 | 1<<TXEN0)
 /*data len UCSRnB[2] UCSRnC[2:1]*/
 typedef enum{
     DATA_LEN_5BIT = 0,
@@ -57,5 +57,18 @@ struct atmega128_uart{
     int stop_bits;
     int parity;
 };
+
+
+void uart_enable(struct atmega128_uart *dev, int en);
+void uart_enable_interrupt(int en);
+void uart_set_u2x(struct atmega128_uart* dev, int u2x);
+void uart_init(struct atmega128_uart* dev, u32 baudrate, char parity, int databits, int stopbit);
+void uart_flush(struct atmega128_uart* dev);
+void uart_putc(struct atmega128_uart* dev, char c);
+char uart_getc(struct atmega128_uart* dev);
+int uart_write(struct atmega128_uart* dev, const char* buf, int len);
+int uart_read(struct atmega128_uart* dev, char* buf, int len);
+void uart_enable_rx_interrupt(struct atmega128_uart* dev, int en);
+void uart_enable_tx_interrupt(struct atmega128_uart* dev, int en);
 
 #endif

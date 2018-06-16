@@ -1,5 +1,4 @@
 #include "uart.h"
-
 static inline void uart_write_reg(int reg_addr, u8 val)
 {
 	write8(reg_addr, val);
@@ -25,7 +24,9 @@ void uart_enable(struct atmega128_uart *dev, int en)
 }
 u16 uart_calc_div(struct atmega128_uart* dev, u32 baudrate)
 {
-    return (F_CPU + ((DIV_U2X(dev->u2x) * baudrate)/2)/ (DIV_U2X(dev->u2x) * baudrate) -1);
+    return ((F_CPU + ((DIV_U2X(dev->u2x) * baudrate)/2))/ (DIV_U2X(dev->u2x) * baudrate) -1);
+    // return (1600/DIV_U2X(dev->u2x)/144 -1);
+        
 }
 
 void uart_enable_interrupt(int en)
@@ -54,11 +55,22 @@ void uart_init(struct atmega128_uart* dev, u32 baudrate, char parity, int databi
     //set div
     uart_write_reg(UART_BAUD_H(dev->id), ((dev->div)>>8)&0x0f);
     uart_write_reg(UART_BAUD_L(dev->id), (dev->div)&0xff);
+
+
     //set data len
-    val = uart_read_reg(UART_CTL_STAT_B(dev->id)) & ~DATA_BIT_H_MASK;
-    uart_write_reg(UART_CTL_STAT_B(dev->id), val | ((dev->data_bits - 5)<<DATA_BIT_H_SHIFT));
-    val = uart_read_reg(UART_CTL_STAT_C(dev->id)) & ~DATA_BIT_L_MASK;
-    uart_write_reg(UART_CTL_STAT_C(dev->id), val | ((dev->data_bits - 5)<<DATA_BIT_L_SHIFT));
+    
+    if((dev->data_bits<9)&&(dev->data_bits>4)){
+        val = uart_read_reg(UART_CTL_STAT_B(dev->id)) & ~DATA_BIT_H_MASK;
+
+        val = uart_read_reg(UART_CTL_STAT_C(dev->id)) & ~DATA_BIT_L_MASK;
+        uart_write_reg(UART_CTL_STAT_C(dev->id), val | ((dev->data_bits - 5)<<DATA_BIT_L_SHIFT));
+    }else{
+        val = uart_read_reg(UART_CTL_STAT_B(dev->id)) & ~DATA_BIT_H_MASK;
+        uart_write_reg(UART_CTL_STAT_B(dev->id), val | (1<<DATA_BIT_H_SHIFT));
+        val = uart_read_reg(UART_CTL_STAT_C(dev->id)) & ~DATA_BIT_L_MASK;
+        uart_write_reg(UART_CTL_STAT_C(dev->id), val | (3<<DATA_BIT_L_SHIFT));
+    }
+    
 
     //set parity
     val = uart_read_reg(UART_CTL_STAT_C(dev->id)) & ~PARITY_MASK;
@@ -74,14 +86,15 @@ void uart_flush(struct atmega128_uart* dev)
     while(!(uart_read_reg(UART_CTL_STAT_A(dev->id)&(1<<UDRE0))));
 }
 
-void uart_putc(struct atmega128_uart* dev, char c)
+void uart_putc(struct atmega128_uart* dev, char h)
 {
-    while(!(uart_read_reg(UART_CTL_STAT_A(dev->id))& (1<<TXC0)));
-    uart_write_reg(UART_DATA(dev->id), c);
+    while(!(uart_read_reg(UART_CTL_STAT_A(dev->id))& (1<<UDRE0)));
+    uart_write_reg(UART_DATA(dev->id), h);
+
 }
 char uart_getc(struct atmega128_uart* dev)
 {
-    while(!(uart_read_reg(UART_CTL_STAT_A(dev->id))& (1<<RXC0)));
+    while(!((uart_read_reg(UART_CTL_STAT_A(dev->id)))& (1<<RXC0)));
     return uart_read_reg(UART_DATA(dev->id));
 }
 

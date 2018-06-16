@@ -5,11 +5,10 @@ VPATH=cdl/objs
 VPATH += apps/objs
 TARGET = main.hex
 PRE-TARGET = main.axf
-objects =  main.o console.o uart.o
 
 $(TARGET): mkcdl mkapps mkhex
 program: $(TARGET)
-	avrdude -p atmega128 -c usbasp -e -U flash:w:$(TARGET)
+	avrdude -p m128 -c usbasp -e -U flash:w:$(TARGET)
 
 .PHONY: clean mkcdl mkapps mkhex
 
