@@ -1,7 +1,7 @@
 #ifndef __UART_H__
 #define __UART_H__
 #include<avr/io.h>
-#include"../inc/cdl_types.h"
+#include <inttypes.h>
 /*Define register*/
 
 #define UART_DATA(x) ((x)?0x9c:0x2c)
@@ -50,8 +50,8 @@ typedef enum{
 
 struct atmega128_uart{
     int id;
-    u32 baudrate;
-    u16 div;
+    uint32_t baudrate;
+    uint16_t div;
     int u2x;
     int data_bits;
     int stop_bits;
@@ -62,7 +62,7 @@ struct atmega128_uart{
 void uart_enable(struct atmega128_uart *dev, int en);
 void uart_enable_interrupt(int en);
 void uart_set_u2x(struct atmega128_uart* dev, int u2x);
-void uart_init(struct atmega128_uart* dev, u32 baudrate, char parity, int databits, int stopbit);
+void uart_init(struct atmega128_uart* dev, uint32_t baudrate, char parity, int databits, int stopbit);
 void uart_flush(struct atmega128_uart* dev);
 void uart_putc(struct atmega128_uart* dev, char c);
 char uart_getc(struct atmega128_uart* dev);

@@ -10,7 +10,7 @@ CFLAG = -mmcu=atmega128 \
 		-c \
 		$(patsubst %, -I%, $(subst :, ,$(IPATH)))
 
-srcs = uart.c
+srcs = uart.c io.c
 
 objects = $(addprefix $(OUTPUT)/, $(srcs:.c=.o))
 all:$(OUTPUT) $(objects)

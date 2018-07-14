@@ -1,10 +1,11 @@
 #include "uart.h"
-static inline void uart_write_reg(int reg_addr, u8 val)
+#include"../inc/cdl_types.h"
+static inline void uart_write_reg(int reg_addr, uint8_t val)
 {
 	write8(reg_addr, val);
 }
 
-static inline u8 uart_read_reg(int reg_addr)
+static inline uint8_t uart_read_reg(int reg_addr)
 {
 	return read8(reg_addr);
 }
@@ -22,7 +23,7 @@ void uart_enable(struct atmega128_uart *dev, int en)
     }
     
 }
-u16 uart_calc_div(struct atmega128_uart* dev, u32 baudrate)
+uint16_t uart_calc_div(struct atmega128_uart* dev, uint32_t baudrate)
 {
     return ((F_CPU + ((DIV_U2X(dev->u2x) * baudrate)/2))/ (DIV_U2X(dev->u2x) * baudrate) -1);
     // return (1600/DIV_U2X(dev->u2x)/144 -1);
@@ -37,7 +38,7 @@ void uart_set_u2x(struct atmega128_uart* dev, int u2x)
     dev->u2x = u2x;
 }
 
-void uart_init(struct atmega128_uart* dev, u32 baudrate, char parity, int databits, int stopbit)
+void uart_init(struct atmega128_uart* dev, uint32_t baudrate, char parity, int databits, int stopbit)
 {
     int val;
     dev->baudrate = baudrate;

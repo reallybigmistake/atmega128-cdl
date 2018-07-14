@@ -13,6 +13,7 @@
 #define __STRTO_H__
 
 unsigned long simple_strtoul( const char* cp, char** endp, unsigned int base );
+unsigned int simple_strtouint( const char* cp, char** endp, unsigned int base );
 int strict_strtoul( const char* cp, unsigned int base, unsigned long* res );
 long simple_strtol( const char* cp, char** endp, unsigned int base );
 unsigned long ustrtoul( const char* cp, char** endp, unsigned int base );

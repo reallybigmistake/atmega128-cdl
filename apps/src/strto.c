@@ -56,6 +56,46 @@ unsigned long simple_strtoul( const char* cp, char** endp, unsigned int base )
 	return result;
 }
 
+unsigned int simple_strtouint( const char* cp, char** endp, unsigned int base )
+{
+	unsigned int result = 0;
+	unsigned int value;
+
+	if ( *cp == '0' )
+	{
+		cp++;
+		if ( ( *cp == 'x' ) && isxdigit( cp[1] ) )
+		{
+			base = 16;
+			cp++;
+		}
+
+		if ( !base )
+		{
+			base = 8;
+		}
+	}
+
+	if ( !base )
+	{
+		base = 10;
+	}
+
+	while ( isxdigit( *cp ) &&
+		( value = isdigit( *cp ) ? *cp - '0' :
+		( islower( *cp ) ? toupper( *cp ) : *cp ) - 'A' + 10 ) < base )
+	{
+		result = result * base + value;
+		cp++;
+	}
+
+	if ( endp )
+	{
+		*endp = ( char* )cp;
+	}
+
+	return result;
+}
 int strict_strtoul( const char* cp, unsigned int base, unsigned long* res )
 {
 	char* tail;

@@ -163,10 +163,11 @@ int cmdline_help_general( cmdline_entry* entry )
 
 unsigned long get_arg_ulong(const char* buf)
 {
-	unsigned long ret = 0;
+	unsigned long ret = 1;
 	int base = 10;
-	char *ptr = buf;
+	const char *ptr = buf;
 	int flag = 0;
+	char *end;
 
 	if (!strncmp(buf,"0x",2) || !strncmp(buf,"0X",2)) {
 		base = 16;
@@ -176,6 +177,27 @@ unsigned long get_arg_ulong(const char* buf)
 		flag = 1;
 	}
 	ret = simple_strtoul((const char*)ptr, 0, base);
+	if (flag)
+		ret = -ret;
+
+	return ret;
+}
+unsigned int get_arg_uint(const char* buf)
+{
+	unsigned int ret = 1;
+	int base = 10;
+	const char *ptr = buf;
+	int flag = 0;
+	char *end;
+
+	if (!strncmp(buf,"0x",2) || !strncmp(buf,"0X",2)) {
+		base = 16;
+		ptr = buf+2;
+	}else if (!strncmp(buf,"-",1)) {
+		ptr = buf+1;
+		flag = 1;
+	}
+	ret = simple_strtouint((const char*)ptr, 0, base);
 	if (flag)
 		ret = -ret;
 
