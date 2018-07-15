@@ -33,4 +33,5 @@ uint8_t port_get_input(E_IO_ID id);
 void pin_set_output(E_IO_ID id, uint8_t pin, E_PIN_VAL pin_val);
 E_PIN_VAL pin_get_input(E_IO_ID id, uint8_t pin);
 void pin_set_direction(E_IO_ID id, uint8_t pin, E_PIN_DIR pin_dir);
+void pullup_disable(uint8_t en);
 #endif

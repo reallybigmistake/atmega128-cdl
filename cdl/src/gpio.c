@@ -1,4 +1,4 @@
-#include "io.h"
+#include "gpio.h"
 #include"../inc/cdl_types.h"
 const uint8_t io_addr[] = {
     // PORTA
@@ -60,7 +60,7 @@ void pin_set_direction(E_IO_ID id, uint8_t pin, E_PIN_DIR pin_dir)
 {
     uint8_t val;
     val = port_get_direction(id) & ~(1<<pin);
-    port_set_direction(pin, val | (pin_dir<<pin));
+    port_set_direction(id, val | (pin_dir<<pin));
 }
 void pin_set_output(E_IO_ID id, uint8_t pin, E_PIN_VAL pin_val)
 {
@@ -71,5 +71,17 @@ void pin_set_output(E_IO_ID id, uint8_t pin, E_PIN_VAL pin_val)
 
 E_PIN_VAL pin_get_input(E_IO_ID id, uint8_t pin)
 {
-    return port_get_input(id)>>pin;
+    return port_get_input(id)&(1<<pin);
+}
+
+void pullup_disable(uint8_t en)
+{
+    int val;
+    val = SFIOR & ~(1<<PUD);
+    if(en){
+        SFIOR = val | (1<<PUD);
+    }else{
+        SFIOR = val;
+    }
+
 }

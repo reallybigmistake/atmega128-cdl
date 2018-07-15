@@ -5,7 +5,8 @@
 /*-----------------------------------------------------------------------------------------------------------*/
 #include "test_config.h"
 #include "test_timer.h"
-#include "test_io.h"
+#include "test_gpio.h"
+#include "test_usb.h"
 
 /*************************************************************************************************************/
 // macro definition
@@ -34,8 +35,8 @@ static char *g_cmd_buf_endp;
 // device list for test fun
 const test_func_menu menu[] = {
 	{timer_test_menu,	timer_test_prepare,	0, "timer", 			timer_test_cleanup },
-	{NULL,		NULL,	1, "mmc/sdio 1",		NULL},
-	{gpio_test_menu, NULL, 0, "gpio", NULL}
+	{gpio_test_menu, NULL, 0, "gpio", NULL},
+	{usb_test_menu, NULL, 0, "usb", NULL},
 };
 
 /*************************************************************************************************************/

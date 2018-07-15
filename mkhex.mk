@@ -6,8 +6,8 @@ VPATH += apps/objs
 TARGET = main.hex
 PRE-TARGET = main.axf
 objects =  main.o console.o strto.o cmdline.o  uart.o \
-	test_io.o test_timer.o\
-	io.o
+	test_gpio.o test_timer.o test_usb.o\
+	gpio.o ch372.o
 $(TARGET):$(PRE-TARGET)
 	avr-objcopy -j .text -j .data -O ihex $(PRE-TARGET) $(TARGET)
 $(PRE-TARGET): $(objects)

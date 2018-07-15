@@ -1,10 +1,10 @@
 
-#ifndef __TEST_IO_H__
-#define __TEST_IO_H__
+#ifndef __TEST_USB_H__
+#define __TEST_USB_H__
 #include "test_config.h"
-#include "io.h"
+#include "ch372.h"
 
-#if (CONFIG_IO_TEST == 1)
+#if (CONFIG_USB_TEST == 1)
 
 /*************************************************************************************************************/
 // macro definition
@@ -19,10 +19,10 @@
 /*************************************************************************************************************/
 // global variable declaration
 /*************************************************************************************************************/
-extern cmdline_entry gpio_test_menu[];
+extern cmdline_entry usb_test_menu[];
 
 #else
-#define gpio_test_menu 	NULL
+#define usb_test_menu 	NULL
 #endif
 
 #endif

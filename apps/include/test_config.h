@@ -21,7 +21,7 @@
 
 /* include test device list*/
 #define CONFIG_TIMER_TEST	1
-#define CONFIG_MMC_TEST		0
 #define CONFIG_IO_TEST      1
+#define CONFIG_USB_TEST     1
 #endif
 

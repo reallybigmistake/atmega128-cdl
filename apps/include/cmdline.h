@@ -9,7 +9,7 @@ extern void console_puts( const char* s );
 extern void console_putc( const char c );
 extern int console_gets(char* buf, int len);
 extern char console_getc(void);
-
+extern unsigned long simple_strtoul( const char* cp, char** endp, unsigned int base );
 #define puts console_puts
 #define putc console_putc
 #define printf console_printf

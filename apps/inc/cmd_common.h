@@ -24,4 +24,6 @@ int cmdline_process( char* cmd, cmdline_entry* entry );
 int cmdline_help_general( cmdline_entry* entry );
 
 int cmdline_to_argv( char* cmd,int* argc,char** argv);
+extern unsigned long get_arg_ulong(const char* buf);
+extern unsigned int get_arg_uint(const char* buf);
 #endif
