@@ -161,7 +161,7 @@ int write_endpoint(char* s, int endpoint, int len)
     write_char(cmd);
     sel_data();
     write_char(len);
-    for(i=0;i<len, j++){
+    for(i=0;i<len;i++){
         write_char(*(s+i));
     }
 }

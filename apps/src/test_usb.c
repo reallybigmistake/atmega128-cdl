@@ -1,5 +1,7 @@
 #include "test_usb.h"
+#include "usb_ch9.h"
 char ep_buffer[64];
+char* cp;
 #if (CONFIG_USB_TEST == 1)
 static int cmd_help(int argc, char *argv[])
 {
@@ -22,7 +24,7 @@ struct usb_interface_descriptor* p_interf_descriptor = &interf_descriptor;
 
 void usb_ep0_setup()
 {
-	read_data(ep_buffer, 8);
+	// read_data(ep_buffer, 8);
 
 }
 void usb_ep0_out()
@@ -79,7 +81,7 @@ static int usb_probe(int argc, char *argv[])
 	info("input val is 0x%x\r\n", val1);
 	sel_data();
 	val2 = read_char();
-	info("get value 0x%x", val2);
+	info("get value 0x%x\n", val2&0xff);
 	if(val1 != ~val2)
 	{
 		info("probe test fail\n");
@@ -95,7 +97,7 @@ static int usb_hid(int argc, char *argv[])
 	set_usb_mode(MODE_CUSTOM_FIRMWARE);//custom firmware mode
 	while(!int_detected()){
 		int_status = get_status();
-		swith(int_status){
+		switch(int_status){
 			case USB_INT_EP0_SETUP:	usb_ep0_setup();	break;    	//端点 0 的接收器接收到数据，SETUP 成功
 			case USB_INT_EP0_OUT:	usb_ep0_out();		break;   	//端点 0 的接收器接收到数据，OUT 成功
 			case CMD_RET_SUCCESS:	usb_ep0_in();		break;    	//端点 0 的发送器发送完数据，IN 成功
