@@ -3,6 +3,7 @@
 #define __TEST_USB_H__
 #include "test_config.h"
 #include "ch372.h"
+#include "usb_ch9.h"
 
 #if (CONFIG_USB_TEST == 1)
 

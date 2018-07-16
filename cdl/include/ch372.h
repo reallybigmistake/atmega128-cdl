@@ -98,9 +98,18 @@ typedef enum{
 /*apis*/
 int int_detected();
 void init_gpio();
-void sel_data(uint8_t en);
+void sel_data();
+void sel_cmd();
 void write_char(char c);
 char read_char();
+
+int check_exist(char val1);
+void ch372_reset();
+void set_usb_mode(E_USB_MODE mode);
+char get_status();
+void set_address(char addr);
+int read_data(char* buffer, int len);
+int write_endpoint(char* s, int endpoint, int len);
 
 /*
 单片机通过 CH372 芯片接收数据的处理步骤如下：

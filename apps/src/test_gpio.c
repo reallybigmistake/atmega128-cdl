@@ -71,8 +71,6 @@ static int pin_output(int argc, char *argv[])
 	pin = get_arg_uint(argv[2]);
 	val = get_arg_uint(argv[3]);
 	info("port:%d, pin: %d, val:%d\n", port, pin, val);
-	info("test1:%lu, test2: %lu, test3:%lu,test4:%lu\n"\
-	, (long)get_arg_ulong("1"), (long)get_arg_ulong("2"), simple_strtol("3", 0, 10),simple_strtol("4", 0, 10));
     pin_set_direction(port, pin, OUT);
 
 	pin_set_output(port, pin, val);
@@ -165,10 +163,10 @@ cmdline_entry gpio_test_menu[] = {
 	{"help", 			cmd_help,		"           : Display list of commands"},
 	{"h",				cmd_help, 		"              : alias for help"},
 	{"?",				cmd_help, 		"              : alias for help"},
-	{"pin_output",		pin_output,	"    : gpio output test"},
-	{"pin_input",		pin_input,		"     : gpio input test"},
-	{"port_output",	    port_output,	"  : gpio interrupt type test"},
-	{"port_input",	    port_input,	"  : gpio debounce test"},
+	{"pin_output",		pin_output,	"    : gpio pin output test"},
+	{"pin_input",		pin_input,		"     : gpio pin input test"},
+	{"port_output",	    port_output,	"  : gpio port output test"},
+	{"port_input",	    port_input,	"  : gpio port input test"},
 	{0, 				0, 				0}
 };
 
