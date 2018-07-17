@@ -91,9 +91,11 @@ typedef enum{
 #define SEL_DATA    0
 #define SEL_CMD     1  
 
-#endif
 
-
+#define EP0_BUF_SIZE 8
+#define EP1_BUF_SIZE 8
+#define EP2_BUF_SIZE 64
+#define EP_MAX_SIZE  EP2_BUF_SIZE 
 
 /*apis*/
 int int_detected();
@@ -111,6 +113,11 @@ void set_address(char addr);
 int read_data(char* buffer, int len);
 int write_endpoint(char* s, int endpoint, int len);
 
+/*app need below variable*/
+// extern char read_buffer[];
+// extern char* p_wr;
+// extern int count;
+#endif
 /*
 单片机通过 CH372 芯片接收数据的处理步骤如下：
 ①、 当 CH372 接收到 USB 主机发来的数据后，首先锁定当前 USB 缓冲区，防止被后续数据覆盖，

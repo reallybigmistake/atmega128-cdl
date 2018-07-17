@@ -1,63 +1,10 @@
 #include "test_usb.h"
 #include "usb_ch9.h"
-char ep_buffer[64];
-char* cp;
+// #include "usb_hid.h"
 #if (CONFIG_USB_TEST == 1)
 static int cmd_help(int argc, char *argv[])
 {
 	return cmdline_help_general(&usb_test_menu[0]);
-}
-
-
-
-struct usb_ctrlrequest request;
-struct usb_ctrlrequest* p_request = &request;
-
-struct usb_device_descriptor dev_descriptor;
-struct usb_device_descriptor* p_dev_descriptor = &dev_descriptor;
-
-struct usb_config_descriptor cfg_descriptor;
-struct usb_config_descriptor* p_cfg_descriptor = &cfg_descriptor;
-
-struct usb_interface_descriptor interf_descriptor;
-struct usb_interface_descriptor* p_interf_descriptor = &interf_descriptor;
-
-void usb_ep0_setup()
-{
-	// read_data(ep_buffer, 8);
-
-}
-void usb_ep0_out()
-{
-
-}
-void usb_ep0_in()
-{
-
-}
-void usb_ep1_out()
-{
-
-}
-void usb_ep1_in()
-{
-    
-}
-void usb_ep2_out()
-{
-
-}
-void usb_ep2_in()
-{
-    
-}
-void usb_suspend()
-{
-
-}
-void usb_wakeup()
-{
-
 }
 
 static int usb_probe(int argc, char *argv[])
