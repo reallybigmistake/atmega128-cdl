@@ -57,7 +57,7 @@ static int usb_hid(int argc, char *argv[])
 			case USB_INT_BUS_RESET1:
 			case USB_INT_BUS_RESET2:
 			case USB_INT_BUS_RESET3:
-			case USB_INT_BUS_RESET4:ch372_reset();		break;
+			case USB_INT_BUS_RESET4:usb_reset();		break;
 			default:info("unknown interrupt %d\n", int_status);break;
 		}
 	}
