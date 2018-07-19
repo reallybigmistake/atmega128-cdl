@@ -32,11 +32,11 @@ int int_detected()
 }
 void sel_data()
 {
-    pin_set_output(PORTCTRL, PIN_INT, SEL_DATA);
+    pin_set_output(PORTCTRL, PIN_A0, SEL_DATA);
 }
 void sel_cmd()
 {
-    pin_set_output(PORTCTRL, PIN_INT, SEL_DATA);
+    pin_set_output(PORTCTRL, PIN_A0, SEL_DATA);
 }
 
 void enable_write(int en)
@@ -116,8 +116,10 @@ int check_exist(char val1)
     sel_cmd();
 	write_char(CHECK_EXIST);
 	sel_data();
-	write_char(val2);
-	read_char();
+	write_char(val1);
+    sel_data();
+	val2 = read_char();
+    info("input val is 0x%x, outut val is 0x%x\n", val1&0xff, val2&0xff);
 	if(val1 == ~val2)
 	{
 		return 1;
@@ -165,7 +167,7 @@ int read_ep_buffer(char* buffer)
 {   
     int i, len;
     sel_cmd();
-	write_char(RD_USB_DATA0);
+	write_char(RD_USB_DATA);
 	sel_data();
 	len = read_char();
     for(i=0;i<len;i++){
@@ -244,12 +246,17 @@ void setup_get_descriptor()
  * ******************************************************/
 void usb_ep0_setup()
 {
+    info("usb_ep0_setup\n");
     int len;
     char* req = (char*)p_request;
     InCtrlTransfer = 1;     //set ctrl transfer flag
     len = read_ep_buffer(req);
+    info("request is:");
+    for(int i=0; i<len;i++){
+        info("0x%x,",req[i]&0xff);
+        }
     if((p_request->bRequestType)&0x80 == USB_DIR_IN)
-    {
+    { 
         info("DIR_IN_REQUEST\n");
         switch((p_request->bRequestType)&USB_TYPE_MASK)
         {
@@ -328,33 +335,39 @@ void usb_ep0_in()
 void usb_ep1_out()
 {
     info("usb_ep1_out\n");
+    unlock_buffer();
 }
 void usb_ep1_in()
 {
     info("usb_ep1_in\n");
+    unlock_buffer();
 }
 void usb_ep2_out()
 {
     info("usb_ep2_out\n");
+    unlock_buffer();
 }
 void usb_ep2_in()
 {
     info("usb_ep2_in\n");
+    unlock_buffer();
 }
 void usb_suspend()
 {
     info("usb_suspend\n");
+    unlock_buffer();
 }
 void usb_wakeup()
 {
     info("usb_wakeup\n");
+    unlock_buffer();
 }
 void usb_reset()
 {
     info("usb_reset\n");
-    write_cmd(RESET_ALL);
     SendCount = 0;
     p_request = 0;
+    unlock_buffer();
 }
 
 #if 0

@@ -98,8 +98,14 @@ typedef enum{
 #define EP_MAX_SIZE  EP2_BUF_SIZE 
 
 /*apis*/
-int check_exist(char val1);
-void set_usb_mode(E_USB_MODE mode);
+void init_gpio();
+int int_detected();
+int check_exist(char);
+void ch372_reset();
+void set_usb_mode(E_USB_MODE);
+char get_status();
+
+
 void usb_ep0_setup();
 void usb_ep0_out();
 void usb_ep0_in();

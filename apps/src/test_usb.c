@@ -1,5 +1,5 @@
 #include "test_usb.h"
-
+#include <util/delay.h>
 #if (CONFIG_USB_TEST == 1)
 static int cmd_help(int argc, char *argv[])
 {
@@ -8,27 +8,16 @@ static int cmd_help(int argc, char *argv[])
 
 static int usb_probe(int argc, char *argv[])
 {
-	char val1;
-	char val2;
+	char val;
 	if (argc < 2) 
 	{
 		info("wrong cmd_format: usb_probe val\n", argv[0]);
 		return 0;
 	}
-
+	init_gpio();
 	// Get the parameters
-	val1 = get_arg_uint(argv[1]);
-
-    init_gpio();
-	sel_cmd();
-	write_char(CHECK_EXIST);
-	sel_data();
-	write_char(val1);
-	info("input val is 0x%x\r\n", val1);
-	sel_data();
-	val2 = read_char();
-	info("get value 0x%x\n", val2&0xff);
-	if(val1 != ~val2)
+	val = get_arg_uint(argv[1]);
+	if(!check_exist(val))
 	{
 		info("probe test fail\n");
 		return -1;
@@ -38,10 +27,15 @@ static int usb_probe(int argc, char *argv[])
 }
 
 static int usb_hid(int argc, char *argv[])
-{	
+{	char* param[2] = {"usb_probe", "0x55"};
 	char int_status;
-	set_usb_mode(MODE_CUSTOM_FIRMWARE);//custom firmware mode
-	while(!int_detected()){
+	int in_reset=0;
+	init_gpio();
+	set_usb_mode(MODE_CUSTOM_FIRMWARE);
+	_delay_us(20);
+	check_exist(0x5a);
+	while(1){
+		if(!int_detected())continue; 
 		int_status = get_status();
 		switch(int_status){
 			case USB_INT_EP0_SETUP:	usb_ep0_setup();	break;    	//端点 0 的接收器接收到数据，SETUP 成功
@@ -56,13 +50,14 @@ static int usb_hid(int argc, char *argv[])
 			case USB_INT_BUS_RESET1:
 			case USB_INT_BUS_RESET2:
 			case USB_INT_BUS_RESET3:
-			case USB_INT_BUS_RESET4:usb_reset();		break;
-			default:info("unknown interrupt %d\n", int_status);break;
+			case USB_INT_BUS_RESET4:usb_reset();break;
+			default:info("unknown interrupt %0x\n", int_status&0xff);break;
 		}
 	}
 
 	
 }
+
 
 cmdline_entry usb_test_menu[] = {
 	{"help", 			cmd_help,		"           : Display list of commands"},
