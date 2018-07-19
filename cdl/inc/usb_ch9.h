@@ -34,10 +34,12 @@
 #define __LINUX_USB_CH9_H
 
 #include <inttypes.h>	/* __u8 etc */
+#include "cdl_types.h"
 typedef uint8_t __u8;
-typedef uint8_t u8;
+// typedef uint8_t u8;
 typedef uint16_t __le16;
-typedef uint16_t u16;
+// typedef uint16_t u16;
+
 
 /*-------------------------------------------------------------------------*/
 

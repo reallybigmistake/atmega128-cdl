@@ -2,19 +2,17 @@
 #include "gpio.h"
 #include "usb_ch9.h"
 #include "usb_hid.h"
-// #include <stdarg.h>
+#include "cdl_types.h"
 
 /*******************************************************/
-// extern int console_printf(const char* fmt, ...);
-// #define info(...)	console_printf(__VA_ARGS__)
 struct usb_ctrlrequest request;
 struct usb_ctrlrequest* p_request = &request;
 char read_buffer[EP_MAX_SIZE];
 char* p_send;
 /*
 *SendCount>0,continue transfer; 
-*SendCount=0,send 0 length package; 
-*SendCount<0,transfer done
+*
+* or ,transfer done
 */
 int SendCount;
 /*
@@ -163,25 +161,22 @@ void set_address(char addr)
 	write_char(addr);
 }
 
-int read_data(char* buffer, int len)
+int read_ep_buffer(char* buffer)
 {   
-    int i, j;
+    int i, len;
     sel_cmd();
-	write_char(RD_USB_DATA);
+	write_char(RD_USB_DATA0);
 	sel_data();
-	j = read_char();
-    if(len<j)
-        j=len;
-    for(i=0;i<j;i++){
+	len = read_char();
+    for(i=0;i<len;i++){
         buffer[i]=read_char();
     }
-    len = j;
-    buffer[j]=0;
     return len;
 }
 
 void write_chars(char* s, int len)
 {
+    int i;
     sel_data();
     write_char(len);
     for(i=0;i<len;i++){
@@ -194,7 +189,175 @@ void write_cmd(char cmd)
     sel_cmd();
     write_char(cmd);
 }
+/******************************************************************
+**step up trasition
+*******************************************************************/
 
+void write_endpoint0()
+{
+    char ep_send_cmd;
+    int buf_size;
+    ep_send_cmd = WR_USB_DATA3;
+    buf_size=EP0_BUF_SIZE;
+    if(SendCount>0)
+    {
+        write_cmd(ep_send_cmd);
+        if(SendCount<buf_size)  //if SendCount less than buffer size, send len=SendCount
+        {
+            write_chars(p_send, SendCount);
+            SendCount = 0;     //transfer done
+        }else               //if SendCount bigger than buffer size, send len=buffer size
+        {
+            write_chars(p_send, buf_size);
+            SendCount -= buf_size;
+        }
+    }
+}
+void setup_get_descriptor()
+{
+    switch((p_request->wValue)>>8)
+    {
+        case USB_DT_DEVICE:
+            p_send = (char*)p_dev_descriptor;
+            SendCount = p_dev_descriptor->bLength;
+            info("requeset size : %d\n", SendCount);
+            break;
+        case USB_DT_CONFIG:
+            p_send = (char*)p_cfg_descriptor;
+            SendCount = p_dev_descriptor->bLength;
+            info("requeset size : %d\n", SendCount);
+            break;
+        case USB_DT_STRING:
+            p_send = (char*)p_string_descriptor;
+            SendCount = p_dev_descriptor->bLength;
+            info("requeset size : %d\n", SendCount);
+            break;
+    }
+    write_endpoint0();
+}
+
+
+
+/*********************************************************
+ * interrupt handlers
+ * 
+ * ******************************************************/
+void usb_ep0_setup()
+{
+    int len;
+    char* req = (char*)p_request;
+    InCtrlTransfer = 1;     //set ctrl transfer flag
+    len = read_ep_buffer(req);
+    if((p_request->bRequestType)&0x80 == USB_DIR_IN)
+    {
+        info("DIR_IN_REQUEST\n");
+        switch((p_request->bRequestType)&USB_TYPE_MASK)
+        {
+            case USB_TYPE_STANDARD:
+                info("USB_TYPE_STANDARD\n");
+                switch(p_request->bRequest)
+                {
+                    case USB_REQ_GET_DESCRIPTOR:
+                        info("USB_REQ_GET_DESCRIPTOR\n");
+                        setup_get_descriptor();
+                        break;                    
+                    case USB_REQ_GET_CONFIGURATION:
+                        info("USB_REQ_GET_CONFIGURATION\n");    break;
+                    default:
+                        info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
+                }
+            case USB_TYPE_CLASS:
+                info("USB_TYPE_CLASS\n");    break;
+            case USB_TYPE_VENDOR:
+                info("USB_TYPE_VENDOR\n");    break;
+            case USB_TYPE_RESERVED:
+                info("USB_TYPE_VENDOR\n");    break;
+            default:
+                info("UNKNOWN USB REQ TYPE\n"); break;
+        }
+
+    }
+    else
+    {
+        info("DIR_OUT_REQUEST\n");
+        switch((p_request->bRequestType)&USB_TYPE_MASK)
+        {
+            case USB_TYPE_STANDARD:
+                info("USB_TYPE_STANDARD\n");
+                switch(p_request->bRequest)
+                {
+                    case USB_REQ_SET_ADDRESS:
+                        info("USB_REQ_SET_ADDRESS\n");
+                        Address = p_request->wValue;
+                        info("get new address 0x%x", p_request->wValue); 
+                        break;
+                    default:
+                        info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
+                }
+            case USB_TYPE_CLASS:
+                info("USB_TYPE_CLASS\n");    break;
+            case USB_TYPE_VENDOR:
+                info("USB_TYPE_VENDOR\n");    break;
+            case USB_TYPE_RESERVED:
+                info("USB_TYPE_VENDOR\n");    break;
+            default:
+                info("UNKNOWN USB REQ TYPE\n"); break;
+        }
+    }
+    unlock_buffer();
+}
+
+void usb_ep0_out()
+{
+    info("usb_ep0_out\n");
+}
+void usb_ep0_in()
+{
+    info("usb_ep0_in\n");
+    switch(p_request->bRequest)
+    {
+        case USB_REQ_GET_DESCRIPTOR:
+            write_endpoint0();
+            break;
+        case USB_REQ_SET_ADDRESS:
+            set_address(Address);
+            break;
+    }
+    unlock_buffer();
+}
+void usb_ep1_out()
+{
+    info("usb_ep1_out\n");
+}
+void usb_ep1_in()
+{
+    info("usb_ep1_in\n");
+}
+void usb_ep2_out()
+{
+    info("usb_ep2_out\n");
+}
+void usb_ep2_in()
+{
+    info("usb_ep2_in\n");
+}
+void usb_suspend()
+{
+    info("usb_suspend\n");
+}
+void usb_wakeup()
+{
+    info("usb_wakeup\n");
+}
+void usb_reset()
+{
+    info("usb_reset\n");
+    write_cmd(RESET_ALL);
+    SendCount = 0;
+    p_request = 0;
+}
+
+#if 0
 int write_endpoint(int endpoint)
 {
     char ep_send_cmd;
@@ -233,178 +396,4 @@ int write_endpoint(int endpoint)
     }
     // else unlock_buffer();
 }
-
-int write_endpoint0()
-{
-    char ep_send_cmd;
-    int buf_size;
-    cmd = WR_USB_DATA3;
-    buf_size=EP0_BUF_SIZE;
-    if(SendCount>0)
-    {
-        write_cmd(ep_send_cmd);
-        if(SendCount<buf_size)  //if SendCount less than buffer size, send len=SendCount
-        {
-            write_chars(p_wr, SendCount)
-            SendCount = -1;     //transfer done
-            InCtrlTransfer = 0; //InCtrlTransfer only affect control transfer
-        }else               //if SendCount bigger than buffer size, send len=buffer size
-        {
-            write_chars(p_wr, buf_size)
-            SendCount -= buf_size;
-        }
-    }
-    else if(SendCount == 0)    //when SendCount reach zero, send 0 package if InctrlTransfer
-    {                       //else just ignor the SendCount=0
-        if(InCtrlTransfer)  //anyway ,set the SendCount=-1, to finish the send
-        {
-            if(!Address)break;  //when first time get device descriptor, no zero package
-            write_cmd(ep_send_cmd);
-            write_chars(p_wr, 0);  
-            InCtrlTransfer = 0; //contrl transfer finish after the 0 package
-        }
-        SendCount = -1;         
-    }
-    // else unlock_buffer();
-}
-
-/*********************************************************
- * interrupt handlers
- * 
- * ******************************************************/
-void usb_ep0_setup()
-{
-    int len;
-    char* req = (char*)p_request;
-    InCtrlTransfer = 1;     //set ctrl transfer flag
-    len = read_data(ep_buffer);
-    read_data(request, len);
-    if((p_request->bRequestType)&0x80 == USB_DIR_IN)
-    {
-        info("DIR_IN_REQUEST\n");
-        switch((p_request->bRequestType)&USB_TYPE_MASK)
-        {
-            case USB_TYPE_STANDARD:
-                info("USB_TYPE_STANDARD\n")
-                switch(p_request->bRequest)
-                {
-                    case USB_REQ_GET_DESCRIPTOR:
-                        info("USB_REQ_GET_DESCRIPTOR\n");
-                        switch((p_request->wValue)>>8)
-                        {
-                            case USB_DT_DEVICE:
-                                p_send = (char*)p_dev_descriptor;
-                                if(!Address) //first time request device descriptor
-                                {
-                                    SendCount = EP0_BUF_SIZE;
-                                }else
-                                {
-                                    SendCount = p_dev_descriptor->bLength;
-                                }
-                                info("requeset size : %d\n", SendCount);
-                                break;
-                            case USB_DT_CONFIG:
-                                p_send = (char*)p_cfg_descriptor;
-                                SendCount = p_dev_descriptor->bLength;
-                                info("requeset size : %d\n", SendCount);
-                                break;
-                            case USB_DT_STRING:
-                                p_send = (char*)p_string_descriptor;
-                                SendCount = p_dev_descriptor->bLength;
-                                info("requeset size : %d\n", SendCount);
-                                break;   
-                        }
-                         write_endpoint(0);  //send descriptor
-                         break;                    
-                    case USB_REQ_GET_CONFIGURATION:
-                        info("USB_REQ_GET_CONFIGURATION\n");    break;
-                    default:
-                        info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
-                }
-            case USB_TYPE_CLASS:
-                info("USB_TYPE_CLASS\n");    break;
-            case USB_TYPE_VENDOR:
-                info("USB_TYPE_VENDOR\n");    break;
-            case USB_TYPE_RESERVED:
-                info("USB_TYPE_VENDOR\n");    break;
-            default:
-                info("UNKNOWN USB REQ TYPE\n"); break;
-        }
-
-    }
-    else
-    {
-        info("DIR_OUT_REQUEST\n");
-        switch((p_request->bRequestType)&USB_TYPE_MASK)
-        {
-            case USB_TYPE_STANDARD:
-                info("USB_TYPE_STANDARD\n");
-                switch(p_request->bRequest)
-                {
-                    case USB_REQ_SET_Address:
-                        info("USB_REQ_SET_Address\n");    
-                        SendCount = 0;  //send 0 package
-                        write_endpoint(0);
-                        info("get new address 0x%x\n", p_request->wValue);
-                        break;
-                    default:
-                        info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
-                }
-            case USB_TYPE_CLASS:
-                info("USB_TYPE_CLASS\n");    break;
-            case USB_TYPE_VENDOR:
-                info("USB_TYPE_VENDOR\n");    break;
-            case USB_TYPE_RESERVED:
-                info("USB_TYPE_VENDOR\n");    break;
-            default:
-                info("UNKNOWN USB REQ TYPE\n"); break;
-        }
-    }
-    unlock_buffer();
-}
-void usb_ep0_out()
-{
-    info("usb_ep0_out\n");
-}
-void usb_ep0_in()
-{
-    info("usb_ep0_in\n");
-    write_endpoint(0);
-    if(p_request->bRequest == USB_REQ_SET_Address)
-    {
-        Address = p_request->wValue;
-        set_address(Address);
-    }
-    unlock_buffer();
-}
-void usb_ep1_out()
-{
-    info("usb_ep1_out\n");
-}
-void usb_ep1_in()
-{
-    info("usb_ep1_in\n");
-}
-void usb_ep2_out()
-{
-    info("usb_ep2_out\n");
-}
-void usb_ep2_in()
-{
-    info("usb_ep2_in\n");
-}
-void usb_suspend()
-{
-    info("usb_suspend\n");
-}
-void usb_wakeup()
-{
-    info("usb_wakeup\n");
-}
-void usb_reset()
-{
-    info("usb_reset\n");
-    write_cmd(RESET_ALL);
-    SendCount = 0;
-    p_request = 0;
-}
+#endif

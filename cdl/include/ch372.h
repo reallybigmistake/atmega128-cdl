@@ -98,25 +98,18 @@ typedef enum{
 #define EP_MAX_SIZE  EP2_BUF_SIZE 
 
 /*apis*/
-int int_detected();
-void init_gpio();
-void sel_data();
-void sel_cmd();
-void write_char(char c);
-char read_char();
-
 int check_exist(char val1);
-void ch372_reset();
 void set_usb_mode(E_USB_MODE mode);
-char get_status();
-void set_address(char addr);
-int read_data(char* buffer, int len);
-int write_endpoint(char* s, int endpoint, int len);
-
-/*app need below variable*/
-// extern char read_buffer[];
-// extern char* p_wr;
-// extern int count;
+void usb_ep0_setup();
+void usb_ep0_out();
+void usb_ep0_in();
+void usb_ep1_out();
+void usb_ep1_in();
+void usb_ep2_out();
+void usb_ep2_in();
+void usb_suspend();
+void usb_wakeup();
+void usb_reset();
 #endif
 /*
 单片机通过 CH372 芯片接收数据的处理步骤如下：

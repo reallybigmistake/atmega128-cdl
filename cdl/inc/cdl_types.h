@@ -1,6 +1,9 @@
 #ifndef __CDL_TYPES_H__
 #define __CDL_TYPES_H__
 
+#include "../../apps/include/cmdline.h"
+#include <stdarg.h>
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned long u32;

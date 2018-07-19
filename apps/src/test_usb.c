@@ -1,6 +1,5 @@
 #include "test_usb.h"
-#include "usb_ch9.h"
-// #include "usb_hid.h"
+
 #if (CONFIG_USB_TEST == 1)
 static int cmd_help(int argc, char *argv[])
 {
