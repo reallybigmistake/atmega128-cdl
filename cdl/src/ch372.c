@@ -36,7 +36,7 @@ void sel_data()
 }
 void sel_cmd()
 {
-    pin_set_output(PORTCTRL, PIN_A0, SEL_DATA);
+    pin_set_output(PORTCTRL, PIN_A0, SEL_CMD);
 }
 
 void enable_write(int en)
@@ -50,7 +50,7 @@ void enable_write(int en)
 
 void enable_read(int en)
 {
-    //set ddr as 0xff before start read
+    //set ddr as 0x00 before start read
     if(en){
         port_set_direction(PORTDATA, 0x00);
         pin_set_output(PORTCTRL, PIN_RD, LOW);
@@ -217,23 +217,22 @@ void write_endpoint0()
 }
 void setup_get_descriptor()
 {
-    switch((p_request->wValue)>>8)
-    {
-        case USB_DT_DEVICE:
-            p_send = (char*)p_dev_descriptor;
-            SendCount = p_dev_descriptor->bLength;
-            info("requeset size : %d\n", SendCount);
-            break;
-        case USB_DT_CONFIG:
-            p_send = (char*)p_cfg_descriptor;
-            SendCount = p_dev_descriptor->bLength;
-            info("requeset size : %d\n", SendCount);
-            break;
-        case USB_DT_STRING:
-            p_send = (char*)p_string_descriptor;
-            SendCount = p_dev_descriptor->bLength;
-            info("requeset size : %d\n", SendCount);
-            break;
+    switch((p_request->wValue)>>8){
+    case USB_DT_DEVICE:
+        p_send = (char*)p_dev_descriptor;
+        SendCount = p_dev_descriptor->bLength;
+        info("requeset size : %d\n", SendCount);
+        break;
+    case USB_DT_CONFIG:
+        p_send = (char*)p_cfg_descriptor;
+        SendCount = p_dev_descriptor->bLength;
+        info("requeset size : %d\n", SendCount);
+        break;
+    case USB_DT_STRING:
+        p_send = (char*)p_string_descriptor;
+        SendCount = p_dev_descriptor->bLength;
+        info("requeset size : %d\n", SendCount);
+        break;
     }
     write_endpoint0();
 }
@@ -258,58 +257,54 @@ void usb_ep0_setup()
     if((p_request->bRequestType)&0x80 == USB_DIR_IN)
     { 
         info("DIR_IN_REQUEST\n");
-        switch((p_request->bRequestType)&USB_TYPE_MASK)
-        {
-            case USB_TYPE_STANDARD:
-                info("USB_TYPE_STANDARD\n");
-                switch(p_request->bRequest)
-                {
-                    case USB_REQ_GET_DESCRIPTOR:
-                        info("USB_REQ_GET_DESCRIPTOR\n");
-                        setup_get_descriptor();
-                        break;                    
-                    case USB_REQ_GET_CONFIGURATION:
-                        info("USB_REQ_GET_CONFIGURATION\n");    break;
-                    default:
-                        info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
-                }
-            case USB_TYPE_CLASS:
-                info("USB_TYPE_CLASS\n");    break;
-            case USB_TYPE_VENDOR:
-                info("USB_TYPE_VENDOR\n");    break;
-            case USB_TYPE_RESERVED:
-                info("USB_TYPE_VENDOR\n");    break;
+        switch((p_request->bRequestType)&USB_TYPE_MASK){
+        case USB_TYPE_STANDARD:
+            info("USB_TYPE_STANDARD\n");
+            switch(p_request->bRequest){
+            case USB_REQ_GET_DESCRIPTOR:
+                info("USB_REQ_GET_DESCRIPTOR\n");
+                setup_get_descriptor();
+                break;                    
+            case USB_REQ_GET_CONFIGURATION:
+                info("USB_REQ_GET_CONFIGURATION\n");    break;
             default:
-                info("UNKNOWN USB REQ TYPE\n"); break;
+                info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
+            }
+        case USB_TYPE_CLASS:
+            info("USB_TYPE_CLASS\n");    break;
+        case USB_TYPE_VENDOR:
+            info("USB_TYPE_VENDOR\n");    break;
+        case USB_TYPE_RESERVED:
+            info("USB_TYPE_VENDOR\n");    break;
+        default:
+            info("UNKNOWN USB REQ TYPE\n"); break;
         }
 
     }
     else
     {
         info("DIR_OUT_REQUEST\n");
-        switch((p_request->bRequestType)&USB_TYPE_MASK)
-        {
-            case USB_TYPE_STANDARD:
-                info("USB_TYPE_STANDARD\n");
-                switch(p_request->bRequest)
-                {
-                    case USB_REQ_SET_ADDRESS:
-                        info("USB_REQ_SET_ADDRESS\n");
-                        Address = p_request->wValue;
-                        info("get new address 0x%x", p_request->wValue); 
-                        break;
-                    default:
-                        info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
-                }
-            case USB_TYPE_CLASS:
-                info("USB_TYPE_CLASS\n");    break;
-            case USB_TYPE_VENDOR:
-                info("USB_TYPE_VENDOR\n");    break;
-            case USB_TYPE_RESERVED:
-                info("USB_TYPE_VENDOR\n");    break;
+        switch((p_request->bRequestType)&USB_TYPE_MASK){
+        case USB_TYPE_STANDARD:
+            info("USB_TYPE_STANDARD\n");
+            switch(p_request->bRequest){
+            case USB_REQ_SET_ADDRESS:
+                info("USB_REQ_SET_ADDRESS\n");
+                Address = p_request->wValue;
+                info("get new address 0x%x", p_request->wValue); 
+                break;
             default:
-                info("UNKNOWN USB REQ TYPE\n"); break;
-        }
+                info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
+            }
+        case USB_TYPE_CLASS:
+            info("USB_TYPE_CLASS\n");    break;
+        case USB_TYPE_VENDOR:
+            info("USB_TYPE_VENDOR\n");    break;
+        case USB_TYPE_RESERVED:
+            info("USB_TYPE_VENDOR\n");    break;
+        default:
+            info("UNKNOWN USB REQ TYPE\n"); break;
+    }
     }
     unlock_buffer();
 }
@@ -321,14 +316,13 @@ void usb_ep0_out()
 void usb_ep0_in()
 {
     info("usb_ep0_in\n");
-    switch(p_request->bRequest)
-    {
-        case USB_REQ_GET_DESCRIPTOR:
-            write_endpoint0();
-            break;
-        case USB_REQ_SET_ADDRESS:
-            set_address(Address);
-            break;
+    switch(p_request->bRequest){
+    case USB_REQ_GET_DESCRIPTOR:
+        write_endpoint0();
+        break;
+    case USB_REQ_SET_ADDRESS:
+        set_address(Address);
+        break;
     }
     unlock_buffer();
 }
@@ -364,7 +358,8 @@ void usb_wakeup()
 }
 void usb_reset()
 {
-    info("usb_reset\n");
+    info("ch372_reset\n");
+    ch372_reset();
     SendCount = 0;
     p_request = 0;
     unlock_buffer();
