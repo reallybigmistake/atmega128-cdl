@@ -160,7 +160,14 @@ char get_status()
 	sel_data();
 	return read_char();
 }
-
+char get_toggle()
+{
+    sel_cmd();
+	write_char(GET_TOGGLE);
+	sel_data();
+    write_char(0x1A);
+	return read_char();
+}
 void set_address(char addr)
 {
     sel_cmd();
@@ -354,10 +361,10 @@ void usb_ep0_setup()
     }
     unlock_buffer();
 }
-
 void usb_ep0_out()
 {
     info("usb_ep0_out\n");
+    info("toggle:0x%x\n", get_toggle());
     unlock_buffer();
 }
 void usb_ep0_in()

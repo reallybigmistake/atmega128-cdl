@@ -39,7 +39,7 @@ static int usb_hid(int argc, char *argv[])
 		if(usb_in_reset){
 			_delay_ms(40);
 			usb_in_reset = 0;
-			set_usb_mode(MODE_INSIDE_FIRMWARE);
+			set_usb_mode(MODE_CUSTOM_FIRMWARE);
 		}
 		if(!int_detected())continue; 
 		int_status = get_status();

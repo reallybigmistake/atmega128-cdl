@@ -74,7 +74,7 @@ int console_gets(char* buf, int len)
 			 the last.
 			*/
 			if (count) {
-				uart_write(p_uart_console, "\b", 1);
+				uart_write(p_uart_console, "\b \b", 1);
 				count--;
 			}
 			continue;
