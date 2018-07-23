@@ -1,5 +1,4 @@
 #include "test_timer.h"
-#define CONFIG_TIMER_TEST 1
 #if (CONFIG_TIMER_TEST == 1)
 /*************************************************************************************************************/
 // macro definition

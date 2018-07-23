@@ -3,10 +3,12 @@
 #include "usb_ch9.h"
 #include "usb_hid.h"
 #include "cdl_types.h"
+#include <util/delay.h>
 
 /*******************************************************/
+// struct usb_ctrlrequest request;
 struct usb_ctrlrequest request;
-struct usb_ctrlrequest* p_request = &request;
+struct usb_ctrlrequest* p_request=&request;
 char read_buffer[EP_MAX_SIZE];
 char* p_send;
 /*
@@ -27,7 +29,7 @@ char Address = 0;
 
 int int_detected()
 {
-    return !pin_get_input(PORTCTRL, PIN_INT);
+    return !pin_get_input(PORTINT, PIN_INT);
 
 }
 void sel_data()
@@ -73,14 +75,14 @@ char get_char()
 
 void init_gpio()
 {
-    pullup_disable(1);
+    // pullup_disable(1);
 
-    pin_set_output(PORTCTRL, PIN_INT, HIGH);
+    pin_set_output(PORTINT, PIN_INT, HIGH);
     pin_set_output(PORTCTRL, PIN_A0, HIGH);
     pin_set_output(PORTCTRL, PIN_RD, HIGH);
     pin_set_output(PORTCTRL, PIN_WR, HIGH);
 
-    pin_set_direction(PORTCTRL, PIN_INT, IN);
+    pin_set_direction(PORTINT, PIN_INT, IN);
     pin_set_direction(PORTCTRL, PIN_A0, OUT);
     pin_set_direction(PORTCTRL, PIN_RD, OUT);
     pin_set_direction(PORTCTRL, PIN_WR, OUT);
@@ -94,6 +96,7 @@ void write_char(char c)
     set_char(c);
     enable_write(1);   
     enable_write(0);
+    // _delay_us(2);
 }
 
 char read_char()
@@ -102,6 +105,7 @@ char read_char()
     enable_read(1);
     val = get_char();
     enable_read(0);
+    // _delay_us(2);
     return val;
 }
 
@@ -137,7 +141,8 @@ void ch372_reset()
 void unlock_buffer()
 {
     sel_cmd();
-    write_char(UNLOCK_USB);   
+    write_char(UNLOCK_USB); 
+    info("unlock\n");  
 }
 void set_usb_mode(E_USB_MODE mode)
 {
@@ -145,6 +150,7 @@ void set_usb_mode(E_USB_MODE mode)
 	write_char(SET_USB_MODE);
 	sel_data();
 	write_char(mode);
+    _delay_us(10);
 }
 
 char get_status()
@@ -167,12 +173,15 @@ int read_ep_buffer(char* buffer)
 {   
     int i, len;
     sel_cmd();
-	write_char(RD_USB_DATA);
+	write_char(RD_USB_DATA0);
 	sel_data();
 	len = read_char();
+    // info("get len %d :", len);
     for(i=0;i<len;i++){
         buffer[i]=read_char();
+        // info("0x%x,", buffer[i]&0xff);
     }
+    // info("\n");
     return len;
 }
 
@@ -181,9 +190,12 @@ void write_chars(char* s, int len)
     int i;
     sel_data();
     write_char(len);
+    // info("write len %d :", len);
     for(i=0;i<len;i++){
         write_char(*(s+i));
+        // info("0x%x,", *(s+i)&0xff);
     }
+    // info("\n");
 }
 
 void write_cmd(char cmd)
@@ -192,17 +204,42 @@ void write_cmd(char cmd)
     write_char(cmd);
 }
 /******************************************************************
-**step up trasition
+**setup trasition
 *******************************************************************/
 
+// void write_endpoint0()
+// {
+//     char ep_send_cmd;
+//     int buf_size;
+//     ep_send_cmd = WR_USB_DATA3;
+//     buf_size=EP0_BUF_SIZE;
+//     if(SendCount>0){
+//         write_cmd(ep_send_cmd);
+//         if(SendCount<buf_size)  //if SendCount less than buffer size, send len=SendCount
+//         {
+//             write_chars(p_send, SendCount);
+//             SendCount = -1;     //transfer done
+//         }else               //if SendCount bigger than buffer size, send len=buffer size
+//         {
+//             write_chars(p_send, buf_size);
+//             if(!Address){
+//                 SendCount = -1;
+//             }else{
+//                 SendCount -= buf_size;
+//             }
+//             p_send += buf_size;
+//         }
+//     }else if (SendCount == 0){
+//         write_chars(p_send, 0);
+//     }
+// }
 void write_endpoint0()
 {
     char ep_send_cmd;
     int buf_size;
     ep_send_cmd = WR_USB_DATA3;
     buf_size=EP0_BUF_SIZE;
-    if(SendCount>0)
-    {
+    if(SendCount>0){
         write_cmd(ep_send_cmd);
         if(SendCount<buf_size)  //if SendCount less than buffer size, send len=SendCount
         {
@@ -211,6 +248,7 @@ void write_endpoint0()
         }else               //if SendCount bigger than buffer size, send len=buffer size
         {
             write_chars(p_send, buf_size);
+            p_send += buf_size;
             SendCount -= buf_size;
         }
     }
@@ -219,22 +257,25 @@ void setup_get_descriptor()
 {
     switch((p_request->wValue)>>8){
     case USB_DT_DEVICE:
+        info("USB_DT_DEVICE\n");
         p_send = (char*)p_dev_descriptor;
         SendCount = p_dev_descriptor->bLength;
-        info("requeset size : %d\n", SendCount);
+        info("request size : %d\n", SendCount);
         break;
     case USB_DT_CONFIG:
+        info("USB_DT_CONFIG\n");
         p_send = (char*)p_cfg_descriptor;
         SendCount = p_dev_descriptor->bLength;
-        info("requeset size : %d\n", SendCount);
+        info("request size : %d\n", SendCount);
         break;
     case USB_DT_STRING:
+        info("USB_DT_STRING\n");
         p_send = (char*)p_string_descriptor;
         SendCount = p_dev_descriptor->bLength;
-        info("requeset size : %d\n", SendCount);
+        info("request size : %d\n", SendCount);
         break;
+    default:info("Unknown USB_DT 0x%x", (p_request->wValue)>>8);break;
     }
-    write_endpoint0();
 }
 
 
@@ -247,29 +288,32 @@ void usb_ep0_setup()
 {
     info("usb_ep0_setup\n");
     int len;
+    p_request = &request;
     char* req = (char*)p_request;
     InCtrlTransfer = 1;     //set ctrl transfer flag
     len = read_ep_buffer(req);
-    info("request is:");
+    info("request len %d:", len);
     for(int i=0; i<len;i++){
-        info("0x%x,",req[i]&0xff);
+        info("0x%x,",*(req+i)&0xff);
         }
-    if((p_request->bRequestType)&0x80 == USB_DIR_IN)
+    if(((p_request->bRequestType)&0x80) == USB_DIR_IN)
     { 
         info("DIR_IN_REQUEST\n");
-        switch((p_request->bRequestType)&USB_TYPE_MASK){
+        switch(p_request->bRequestType&USB_TYPE_MASK){
         case USB_TYPE_STANDARD:
             info("USB_TYPE_STANDARD\n");
             switch(p_request->bRequest){
             case USB_REQ_GET_DESCRIPTOR:
                 info("USB_REQ_GET_DESCRIPTOR\n");
                 setup_get_descriptor();
+                write_endpoint0();
                 break;                    
             case USB_REQ_GET_CONFIGURATION:
                 info("USB_REQ_GET_CONFIGURATION\n");    break;
             default:
                 info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
             }
+            break;
         case USB_TYPE_CLASS:
             info("USB_TYPE_CLASS\n");    break;
         case USB_TYPE_VENDOR:
@@ -291,11 +335,13 @@ void usb_ep0_setup()
             case USB_REQ_SET_ADDRESS:
                 info("USB_REQ_SET_ADDRESS\n");
                 Address = p_request->wValue;
-                info("get new address 0x%x", p_request->wValue); 
+                info("get new address 0x%x\n", Address);
+                // set_address(Address);
                 break;
             default:
                 info("UNKNOWN REQUEST 0x%x\n", p_request->bRequest);    break;
             }
+            break;
         case USB_TYPE_CLASS:
             info("USB_TYPE_CLASS\n");    break;
         case USB_TYPE_VENDOR:
@@ -304,7 +350,7 @@ void usb_ep0_setup()
             info("USB_TYPE_VENDOR\n");    break;
         default:
             info("UNKNOWN USB REQ TYPE\n"); break;
-    }
+        }
     }
     unlock_buffer();
 }
@@ -312,16 +358,22 @@ void usb_ep0_setup()
 void usb_ep0_out()
 {
     info("usb_ep0_out\n");
+    unlock_buffer();
 }
 void usb_ep0_in()
 {
     info("usb_ep0_in\n");
     switch(p_request->bRequest){
     case USB_REQ_GET_DESCRIPTOR:
+        info("USB_REQ_GET_DESCRIPTOR\n");
         write_endpoint0();
         break;
     case USB_REQ_SET_ADDRESS:
+        info("USB_REQ_SET_ADDRESS\n");
         set_address(Address);
+        info("set new address 0x%x\n", Address);
+        SendCount=0;
+        // write_endpoint0();
         break;
     }
     unlock_buffer();
@@ -356,12 +408,12 @@ void usb_wakeup()
     info("usb_wakeup\n");
     unlock_buffer();
 }
-void usb_reset()
+void usb_bus_reset()
 {
     info("ch372_reset\n");
     ch372_reset();
     SendCount = 0;
-    p_request = 0;
+    Address = 0;
     unlock_buffer();
 }
 

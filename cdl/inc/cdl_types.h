@@ -3,6 +3,7 @@
 
 #include "../../apps/include/cmdline.h"
 #include <stdarg.h>
+#include <string.h>
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -23,11 +24,11 @@ typedef unsigned long long u64;
 
 
 /*dependence apis*/
-extern unsigned long get_timer(unsigned long start);
+// extern unsigned long get_timer(unsigned long start);
 extern int console_printf(const char* fmt, ...);
-extern void* memcpy(void*, const void*, unsigned int);
-extern void* memset(void*, int, unsigned int);
-extern void udelay(unsigned long usec);
-extern void *malloc(unsigned int size);
-extern void free(void* p);
+// extern void* memcpy(void*, const void*, unsigned int);
+// extern void* memset(void*, int, unsigned int);
+// extern void udelay(unsigned long usec);
+// extern void *malloc(unsigned int size);
+// extern void free(void* p);
 #endif

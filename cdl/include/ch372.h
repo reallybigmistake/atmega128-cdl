@@ -51,7 +51,7 @@ define interrupt status*/
 #define USB_INT_BUS_RESET4  0x0F    //检测到 USB 总线复位
 #define USB_INT_EP0_SETUP   0x0C    //端点 0 的接收器接收到数据，SETUP 成功
 #define USB_INT_EP0_OUT     0x00    //端点 0 的接收器接收到数据，OUT 成功
-#define CMD_RET_SUCCESS     0x51    //端点 0 的发送器发送完数据，IN 成功
+#define USB_INT_EP0_IN      0x08    //端点 0 的发送器发送完数据，IN 成功
 #define USB_INT_EP1_OUT     0x01    //辅助端点/端点 1 接收到数据，OUT 成功
 #define USB_INT_EP1_IN      0x09    //中断端点/端点 1 发送完数据，IN 成功
 #define USB_INT_EP2_OUT     0x02    //批量端点/端点 2 接收到数据，OUT 成功
@@ -79,6 +79,7 @@ typedef enum{
 */
 #define PORTDATA    0
 #define PORTCTRL    2
+#define PORTINT     2
 #define PIN_INT     0
 #define PIN_A0      1
 #define PIN_RD      2
@@ -115,7 +116,7 @@ void usb_ep2_out();
 void usb_ep2_in();
 void usb_suspend();
 void usb_wakeup();
-void usb_reset();
+void usb_bus_reset();
 #endif
 /*
 单片机通过 CH372 芯片接收数据的处理步骤如下：

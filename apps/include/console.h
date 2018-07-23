@@ -4,7 +4,7 @@
 #include<stdio.h>
 #include<string.h>
 
-#define CONSOLE_BUF_SIZE	512
+#define CONSOLE_BUF_SIZE	128
 
 void console_init(int uart_id, unsigned long baudrate);
 unsigned long console_baud(void);

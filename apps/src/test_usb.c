@@ -28,32 +28,25 @@ static int usb_probe(int argc, char *argv[])
 
 static int usb_hid(int argc, char *argv[])
 {
+	char* param[] = {"usb_probe", "0x5a"};
 	char int_status;
 	int usb_in_reset=0;
 	init_gpio();
-	if(!check_exist(0x5a)){
-		set_usb_mode(MODE_CUSTOM_FIRMWARE);
-		_delay_us(20);
-	}	
-	else {
-		usb_reset();
-		usb_in_reset = 1;
-	}
-			
+	set_usb_mode(MODE_OFFLINE);
+	_delay_ms(1000);
+	set_usb_mode(MODE_CUSTOM_FIRMWARE);		
 	while(1){
 		if(usb_in_reset){
 			_delay_ms(40);
 			usb_in_reset = 0;
-			set_usb_mode(MODE_CUSTOM_FIRMWARE);
-			_delay_us(20);
-			check_exist(0x5a);
+			set_usb_mode(MODE_INSIDE_FIRMWARE);
 		}
 		if(!int_detected())continue; 
 		int_status = get_status();
-		switch(usb_in_reset){
+		switch(int_status){
 		case USB_INT_EP0_SETUP:	usb_ep0_setup();	break;    	//端点 0 的接收器接收到数据，SETUP 成功
 		case USB_INT_EP0_OUT:	usb_ep0_out();		break;   	//端点 0 的接收器接收到数据，OUT 成功
-		case CMD_RET_SUCCESS:	usb_ep0_in();		break;    	//端点 0 的发送器发送完数据，IN 成功
+		case USB_INT_EP0_IN:	usb_ep0_in();		break;    	//端点 0 的发送器发送完数据，IN 成功
 		case USB_INT_EP1_OUT:	usb_ep1_out();		break;    	//辅助端点/端点 1 接收到数据，OUT 成功
 		case USB_INT_EP1_IN:	usb_ep1_in();		break;  		//中断端点/端点 1 发送完数据，IN 成功
 		case USB_INT_EP2_OUT:	usb_ep2_out();		break;     	//批量端点/端点 2 接收到数据，OUT 成功
@@ -63,7 +56,7 @@ static int usb_hid(int argc, char *argv[])
 		case USB_INT_BUS_RESET1:
 		case USB_INT_BUS_RESET2:
 		case USB_INT_BUS_RESET3:
-		case USB_INT_BUS_RESET4:usb_reset();usb_in_reset=1; break;
+		case USB_INT_BUS_RESET4:usb_bus_reset();usb_in_reset=1; break;
 		default:info("unknown interrupt %0x\n", int_status&0xff);break;
 		}
 	}
