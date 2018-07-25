@@ -33,11 +33,11 @@ static int usb_hid(int argc, char *argv[])
 	int usb_in_reset=0;
 	init_gpio();
 	set_usb_mode(MODE_OFFLINE);
-	_delay_ms(1000);
+	_delay_ms(500);
 	set_usb_mode(MODE_CUSTOM_FIRMWARE);		
 	while(1){
 		if(usb_in_reset){
-			_delay_ms(40);
+			_delay_ms(50);
 			usb_in_reset = 0;
 			set_usb_mode(MODE_CUSTOM_FIRMWARE);
 		}
