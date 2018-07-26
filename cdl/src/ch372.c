@@ -266,7 +266,7 @@ void write_endpoint0()
             SendCount -= buf_size;
         }
     }else{
-        write_chars(p_send, 0);
+        send0data();
     }
 }
 void setup_get_descriptor()
@@ -280,8 +280,8 @@ void setup_get_descriptor()
         break;
     case USB_DT_CONFIG:
         info("USB_DT_CONFIG\n");
-        p_send = (char*)p_cfg_descriptor;
-        SendCount = p_dev_descriptor->bLength;
+        p_send = (char*)p_config_total;
+        SendCount = p_config_total->cfg_descriptor.wTotalLength;
         info("request size : %d\n", SendCount);
         break;
     case USB_DT_STRING:
@@ -303,13 +303,13 @@ void setup_get_descriptor()
 void usb_ep0_setup()
 {
     info("usb_ep0_setup\n");
-    int len;
+    int len, i;
     p_request = &request;
     char* req = (char*)p_request;
     InCtrlTransfer = 1;     //set ctrl transfer flag
     len = read_ep_buffer(req);
     info("request len %d:", len);
-    for(int i=0; i<len;i++){
+    for(i=0; i<len;i++){
         info("0x%x,",*(req+i)&0xff);
         }
     if(((p_request->bRequestType)&0x80) == USB_DIR_IN)
